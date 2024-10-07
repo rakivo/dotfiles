@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: func main do ... end
+# key: main
+# --
+func main int do
+  $0
+end
