@@ -20,32 +20,7 @@ style = { shape = "Block", blinking = "On" }
 hide_when_typing = true
 
 [keyboard]
-bindings = [
-  { key = "n", mods = "Control", action = "ScrollLineDown" },
-  { key = "p", mods = "Control", action = "ScrollLineUp" },
-  { key = "w", mods = "Alt", action = "Copy" },
-  { key = "y", mods = "Control", action = "Paste" },
-  { key = "s", mods = "Control", action = "SearchForward" },
-  { key = "r", mods = "Control", action = "SearchBackward" },
-  { key = "v", mods = "Control", action = "ToggleViMode" },
-
-  { key = "a", mods = "Control", action = "First", mode = "Vi" },
-  { key = "e", mods = "Control", action = "Last", mode = "Vi"},
-
-  { key = "n", mods = "Control", action = "Down", mode = "Vi" },
-  { key = "p", mods = "Control", action = "Up", mode = "Vi" },
-  { key = "f", mods = "Control", action = "Right", mode = "Vi" },
-  { key = "b", mods = "Control", action = "Left", mode = "Vi" },
-
-  { key = "f", mods = "Alt", action = "WordRight", mode = "Vi" },
-  { key = "b", mods = "Alt", action = "WordLeft", mode = "Vi" },
-
-  { key = "a", mods = "Control|Alt", action = "Bracket", mode = "Vi" },
-
-  { key = "s", mods = "Control", action = "SearchStart", mode = "Vi" },
-  { key = "s", mods = "Control", action = "SearchNext", mode = "Vi|Search" },
-  { key = "r", mods = "Control", action = "SearchPrevious", mode = "Vi|Search" },
-]
+bindings = []
 
 [font.bold_italic]
 family = "Iosevka"
