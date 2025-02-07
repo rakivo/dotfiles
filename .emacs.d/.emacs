@@ -8,6 +8,9 @@
   :config
   (add-hook 'after-init-hook 'global-company-mode))
 
+(setq eldoc-echo-area-use-multiline-p nil)
+(setq eglot-ignored-server-capabilities '(:documentHighlightProvider))
+
 (setq company-tooltip-minimum-width 0)
 (setq completion-show-inline 1)
 (setq company-selection-wrap-around t)
@@ -30,12 +33,12 @@
 (global-set-key (kbd "M-r") 'recompile)
 (global-set-key (kbd "M-i") 'mark-sexp)
 (global-set-key (kbd "M-a") 'async-shell-command)
-(global-set-key (kbd "M-o") 'insert-line-above-and-jump)
 
 (global-set-key (kbd "C-c C-k") 'kill-whole-line)
 (global-set-key (kbd "C-c C-<backspace>") 'kill-whole-line)
 
-(add-hook 'prog-mode-hook (lambda () (setq display-line-numbers 'relative)))
+;; (add-hook 'prog-mode-hook (lambda () (setq display-line-numbers 'relative)))
+(global-display-line-numbers-mode -1)
 
 (setq haskell-interactive-popup-errors nil)
 
@@ -67,20 +70,26 @@
 (global-set-key (kbd "C-=") 'enlarge-window)
 (global-set-key (kbd "M-.") 'lsp-find-definition)
 
-(setq-default tab-width 2)
-(setq indent-line-function 'insert-tab)
+;; (setq-default tab-width 2)
+;; (setq indent-line-function 'insert-tab)
+
+(setq-default tab-width 4)
+(setq-default indent-tabs-mode nil)
 
 (add-to-list 'load-path "~/.emacs.local/")
+
 (load "~/.emacs.rc/rc.el")
+(load "~/.emacs.local/rush-mode.el")
 
 (defun rc/get-default-font ()
   (cond
    ((eq system-type 'windows-nt) "Consolas-13")
-   ((eq system-type 'gnu/linux) "Iosevka-20")))
+   ;; ((eq system-type 'gnu/linux) "Iosevka-20")))
+   ((eq system-type 'gnu/linux) "Fira Code-20")))
 
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
 
-(rc/require-theme 'gruber-darker)
+;; (rc/require-theme 'gruber-darker)
 
 ;; (use-package-theme 'zenburn :ensure t)
 ;; (custom-set-faces
@@ -109,13 +118,17 @@
   scroll-conservatively 10000
   scroll-preserve-screen-position 1)
 
-(use-package gruber-darker-theme :ensure t)
-(custom-set-faces
-  '(font-lock-variable-face ((t (:foreground "#FFFFFF" :weight bold))))
-  '(font-lock-variable-name-face ((t (:foreground "#FFFFFF"))))
-  '(font-lock-constant-face ((t (:foreground "#95a99f"))))
-  '(font-lock-keyword-face ((t (:foreground "#FFDD33" :weight bold))))
-  '(font-lock-type-face ((t (:foreground "#95a99f")))))
+;; (use-package gruber-darker-theme :ensure t)
+(use-package naysayer-theme :ensure t)
+(load-theme 'naysayer t)
+
+;; (custom-set-faces
+;;   '(font-lock-variable-face ((t (:foreground "#FFFFFF" :weight bold))))
+;;   '(font-lock-variable-name-face ((t (:foreground "#FFFFFF"))))
+;;   '(font-lock-constant-face ((t (:foreground "#95a99f"))))
+;;   '(font-lock-keyword-face ((t (:foreground "#FFDD33" :weight bold))
+;;   '(font-lock-type-face ((t (:foreground "#95a99f")))))
+;; ))
 
 (setq whitespace-display-mappings
       '((space-mark 32 [183] [46])
@@ -137,15 +150,21 @@
 (add-hook 'c++-mode-hook (lambda ()
                        (interactive)
                        (c-set-style "linux")
-                       (setq indent-tabs-mode t)
+                       (setq-default indent-tabs-mode nil)
+                       ;; (setq indent-tabs-mode t)
                        (setq c-basic-offset 2)
                        (setq tab-width 2)
                        (c-toggle-comment-style -1)))
 
+(add-hook 'js-mode-hook (lambda ()
+                       (interactive)
+                       (setq-default indent-tabs-mode nil)
+                       (setq tab-width 2)
+                       (setq js-indent-level 2)))
+
 (add-hook 'c-mode-hook (lambda ()
                        (interactive)
                        (c-set-style "linux")
-                       (setq indent-tabs-mode t)
                        (setq c-basic-offset 2)
                        (setq tab-width 2)
                        (c-toggle-comment-style -1)))
@@ -198,7 +217,9 @@
 (use-package lsp-mode
   :ensure t
   :hook (prog-mode . lsp)
-  :commands lsp)
+  :commands lsp
+  :config
+  (setq lsp-clients-typescript-server "typescript-language-server"))
 
 (use-package lsp-ui
   :ensure t
@@ -235,12 +256,14 @@
 (setq lsp-ui-scratch-enable nil)
 (setq lsp-signature-auto-activate nil)
 
+(add-hook 'js-mode-hook 'lsp)
 (add-hook 'c-mode-hook 'lsp)
 (add-hook 'c++-mode-hook 'lsp)
 (add-hook 'go-mode-hook 'lsp)
 (add-hook 'zig-mode-hook 'lsp)
 (add-hook 'rust-mode-hook 'lsp)
 
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . c++-mode))
@@ -288,3 +311,18 @@
 (add-to-list 'compilation-error-regexp-alist
              '("\\([a-zA-Z0-9\\.]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) \\(Warning:\\)?"
                1 2 (4) (5)))
+
+
+(require 'ansi-color)
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+
+(use-package bind-key)
+(bind-key* "M-q" 'find-file)
+
+(custom-set-variables
+ '(custom-safe-themes
+    '("e27c9668d7eddf75373fa6b07475ae2d6892185f07ebed037eedf783318761d7" "d19f00fe59f122656f096abbc97f5ba70d489ff731d9fa9437bac2622aaa8b89" "f366d4bc6d14dcac2963d45df51956b2409a15b770ec2f6d730e73ce0ca5c8a7" default))
+ '(package-selected-packages
+    '(company forge magit-gh-pulls erosiond-theme edit-server surround evil-surround wrap-region column-enforce-mode zenburn-theme yaml-mode xterm-color windswap vterm typescript-mode tuareg toml-mode tide sml-mode smex smartparens scala-mode ryo-modal rust-mode rfc-mode rainbow-mode racket-mode qml-mode purescript-mode proof-general projectile powershell php-mode parinfer-rust-mode org-cliplink nix-mode nim-mode nginx-mode nasm-mode multiple-cursors move-text magit-gitflow lua-mode lsp-ui kotlin-mode js2-mode jinja2-mode ido-completing-read+ helm hc-zenburn-theme haskell-mode graphviz-dot-mode go-mode glsl-mode evil emms editorconfig dumb-jump dream-theme dockerfile-mode dash-functional d-mode counsel-etags cmake-mode clojure-mode anti-zenburn-theme ag)))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
