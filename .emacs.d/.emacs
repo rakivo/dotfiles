@@ -1,4 +1,11 @@
 (require 'package)
+
+(setq display-buffer-base-action
+      '((display-buffer-reuse-window display-buffer-at-bottom)
+        (window-height . 26)))
+
+(add-to-list 'exec-path (expand-file-name "~/.cargo/bin"))
+
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 (pixel-scroll-precision-mode 1)
@@ -7,9 +14,6 @@
   :ensure t
   :config
   (add-hook 'after-init-hook 'global-company-mode))
-
-(setq eldoc-echo-area-use-multiline-p nil)
-(setq eglot-ignored-server-capabilities '(:documentHighlightProvider))
 
 (setq company-tooltip-minimum-width 0)
 (setq completion-show-inline 1)
@@ -37,15 +41,13 @@
 (global-set-key (kbd "C-c C-k") 'kill-whole-line)
 (global-set-key (kbd "C-c C-<backspace>") 'kill-whole-line)
 
-;; (add-hook 'prog-mode-hook (lambda () (setq display-line-numbers 'relative)))
 (global-display-line-numbers-mode -1)
-
-(setq haskell-interactive-popup-errors nil)
 
 (defun set-rectangle-cursor ()
   (setq cursor-type 'box))
 
 (set-default 'cursor-type 'box)
+
 (define-key global-map (kbd "M-h") #'windmove-left)
 (define-key global-map (kbd "M-l") #'windmove-right)
 (define-key global-map (kbd "C-?") #'comment-or-uncomment-region)
@@ -68,10 +70,6 @@
 (global-set-key (kbd "C-0") 'shrink-window-horizontally)
 (global-set-key (kbd "C--") 'enlarge-window-horizontally)
 (global-set-key (kbd "C-=") 'enlarge-window)
-(global-set-key (kbd "M-.") 'lsp-find-definition)
-
-;; (setq-default tab-width 2)
-;; (setq indent-line-function 'insert-tab)
 
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
@@ -85,7 +83,8 @@
   (cond
    ((eq system-type 'windows-nt) "Consolas-13")
    ;; ((eq system-type 'gnu/linux) "Iosevka-20")))
-   ((eq system-type 'gnu/linux) "Fira Code-20")))
+   ;; ((eq system-type 'gnu/linux) "Fira Code-15")))
+   ((eq system-type 'gnu/linux) "Consolas-14")))
 
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
 
@@ -202,7 +201,7 @@
 (setq yas/triggers-in-field nil)
 (setq yas-snippet-dirs '("~/.emacs.snippets/"))
 
-(yas-global-mode 1)
+;; (yas-global-mode 1)
 (setq mouse-wheel-mode nil)
 
 (defun rc/enable-word-wrap ()
@@ -214,68 +213,18 @@
 (global-company-mode 1)
 (global-eldoc-mode -1)
 
-(use-package lsp-mode
-  :ensure t
-  :hook (prog-mode . lsp)
-  :commands lsp
-  :config
-  (setq lsp-clients-typescript-server "typescript-language-server"))
-
-(use-package lsp-ui
-  :ensure t
-  :after lsp-mode)
-
-(setq lsp-completion-enable 1)
-
-(setq lsp-ui-doc-enable nil)
-(setq lsp-ui-sideline-enable nil)
-
-(setq lsp-eldoc-render-all nil)
-(setq lsp-eldoc-render-all nil)
-(setq lsp-eldoc-enable-hover nil)
-(setq lsp-enable-symbol-highlighting nil)
-(setq lsp-signature-render-documentation nil)
-
-(setq lsp-ui-doc-show-with-cursor nil)
-(setq lsp-lens-enable nil)
-(setq lsp-ui-sideline-show-code-actions nil)
-(setq lsp-ui-sideline-enable nil)
-(setq lsp-ui-sideline-show-hover nil)
-(setq lsp-modeline-code-actions-enable nil)
-(setq lsp-diagnostics-provider :none)
-(setq lsp-ui-sideline-enable nil)
-(setq lsp-modeline-diagnostics-enable nil)
-(setq lsp-headerline-breadcrumb-enable nil)
-(setq lsp-ui-sideline-enable nil)
-
-(setq lsp-ui-sideline-show-hover nil)
-(setq lsp-ui-sideline-show-code-actions nil)
-(setq lsp-ui-imenu-enable nil)
-(setq lsp-ui-flycheck-enable nil)
-(setq lsp-ui-peek-enable nil)
-(setq lsp-ui-scratch-enable nil)
-(setq lsp-signature-auto-activate nil)
-
-(add-hook 'js-mode-hook 'lsp)
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
-(add-hook 'go-mode-hook 'lsp)
-(add-hook 'zig-mode-hook 'lsp)
-(add-hook 'rust-mode-hook 'lsp)
-
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
 
-(electric-pair-mode 1)
-
-(setq electric-pair-pairs '(
-                            (?\" . ?\")
-                            (?\{ . ?\})
-                            (?\( . ?\))
-                            ))
+;; (electric-pair-mode 1)
+;; (setq electric-pair-pairs '(
+;;                             (?\" . ?\")
+;;                             (?\{ . ?\})
+;;                             (?\( . ?\))
+;;                             ))
 
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
@@ -284,16 +233,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
-
-(rc/require
- 'yaml-mode
- 'lua-mode
- 'less-css-mode
- 'rust-mode
- 'markdown-mode
- 'toml-mode
- 'go-mode
-)
 
 (setq-default c-basic-offset 2)
 
@@ -308,21 +247,43 @@
 
 (require 'compile)
 
+(defun update-rust-tags ()
+  (when (eq major-mode 'rust-mode)
+    (let ((default-directory (locate-dominating-file buffer-file-name "Cargo.toml")))
+      (when default-directory
+        (start-process "ctags" nil "ctags" "-e" "-R" "--languages=Rust" "--langmap=Rust:.rs")))))
+
+(add-hook 'after-save-hook 'update-rust-tags)
+
+(defun my-xref-find-tag-files ()
+  "Find the TAGS file in the Rust project root."
+  (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
+    (when root
+      (list (expand-file-name "TAGS" root)))))
+
+(setq xref-etags-file-name 'my-xref-find-tag-files)
+(setq xref-search-program 'etags)
+
+(defun my-auto-load-tags ()
+  (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
+    (when root
+      (visit-tags-table (expand-file-name "TAGS" root) t))))
+
+(add-hook 'rust-mode-hook #'my-auto-load-tags)
+(setq tags-revert-without-query t)
+
+;; (use-package dumb-jump
+;;   :bind (("M-." . dumb-jump-go)
+;;          ("M-g b" . dumb-jump-back)
+;;          ("M-g q" . dumb-jump-quick-look))
+;;   :config (setq dumb-jump-prefer-searcher 'rg))
+
 (add-to-list 'compilation-error-regexp-alist
              '("\\([a-zA-Z0-9\\.]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) \\(Warning:\\)?"
                1 2 (4) (5)))
-
 
 (require 'ansi-color)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
 (use-package bind-key)
 (bind-key* "M-q" 'find-file)
-
-(custom-set-variables
- '(custom-safe-themes
-    '("e27c9668d7eddf75373fa6b07475ae2d6892185f07ebed037eedf783318761d7" "d19f00fe59f122656f096abbc97f5ba70d489ff731d9fa9437bac2622aaa8b89" "f366d4bc6d14dcac2963d45df51956b2409a15b770ec2f6d730e73ce0ca5c8a7" default))
- '(package-selected-packages
-    '(company forge magit-gh-pulls erosiond-theme edit-server surround evil-surround wrap-region column-enforce-mode zenburn-theme yaml-mode xterm-color windswap vterm typescript-mode tuareg toml-mode tide sml-mode smex smartparens scala-mode ryo-modal rust-mode rfc-mode rainbow-mode racket-mode qml-mode purescript-mode proof-general projectile powershell php-mode parinfer-rust-mode org-cliplink nix-mode nim-mode nginx-mode nasm-mode multiple-cursors move-text magit-gitflow lua-mode lsp-ui kotlin-mode js2-mode jinja2-mode ido-completing-read+ helm hc-zenburn-theme haskell-mode graphviz-dot-mode go-mode glsl-mode evil emms editorconfig dumb-jump dream-theme dockerfile-mode dash-functional d-mode counsel-etags cmake-mode clojure-mode anti-zenburn-theme ag)))
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
