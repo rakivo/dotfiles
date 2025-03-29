@@ -4,11 +4,10 @@ Just config files for some programs that I actively use.
 
 # about my machine and devices:
 
-- OS: Arch Linux x86_64
-- Kernel: 6.11.1-arch1-1
-- Shell: bash 5.2.37
+- OS: Debian GNU/Linux 12 (bookworm) x86_64
+- Kernel: 6.1.0-29-amd64
+- Shell: bash 5.2.15
 - Resolution: 1920x1080
-- DE: Xfce 4.18
 - WM: i3
 - Theme: Adwaita-dark [GTK2/3]
 - Icons: elementary [GTK2], Adwaita [GTK3]
