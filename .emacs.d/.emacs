@@ -1,14 +1,13 @@
 (require 'package)
 
-(setq display-buffer-base-action
-      '((display-buffer-reuse-window display-buffer-at-bottom)
-        (window-height . 26)))
-
 (add-to-list 'exec-path (expand-file-name "~/.cargo/bin"))
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 (pixel-scroll-precision-mode 1)
+
+(setq split-height-threshold nil)
+(setq split-width-threshold most-positive-fixnum)
 
 (use-package company
   :ensure t
@@ -287,3 +286,6 @@
 
 (use-package bind-key)
 (bind-key* "M-q" 'find-file)
+
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
