@@ -1,3 +1,4 @@
 [submodule ".config/nvim"]
 	path = .config/nvim
-	url = https://github.com/rakivo/init.lua
+	url = https://github.com/rakivo/init.lua.git
+	branch = master
