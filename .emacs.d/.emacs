@@ -1,6 +1,12 @@
 (require 'package)
 
 (add-to-list 'exec-path (expand-file-name "~/.cargo/bin"))
+(add-to-list 'exec-path (expand-file-name "/home/marktyrkba/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/"))
+
+(when (and (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-deferred-compilation t))
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
@@ -12,6 +18,9 @@
 (use-package company
   :ensure t
   :config
+  (setq company-minimum-prefix-length 2)  ;; Don't trigger too early
+  (setq company-idle-delay 0.3)  ;; Add slight delay
+  (setq company-backends '(company-capf))  ;; Use simpler backend
   (add-hook 'after-init-hook 'global-company-mode))
 
 (setq company-tooltip-minimum-width 0)
@@ -200,7 +209,7 @@
 (setq yas/triggers-in-field nil)
 (setq yas-snippet-dirs '("~/.emacs.snippets/"))
 
-;; (yas-global-mode 1)
+(yas-global-mode 1)
 (setq mouse-wheel-mode nil)
 
 (defun rc/enable-word-wrap ()
@@ -212,9 +221,84 @@
 (global-company-mode 1)
 (global-eldoc-mode -1)
 
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :hook (prog-mode . lsp)
+;;   :commands lsp
+;;   :config
+;;   (setq lsp-clients-typescript-server "typescript-language-server"))
+
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :hook ((rust-mode . lsp)
+         (c-mode . lsp)
+         (c++-mode . lsp)
+         (zig-mode . lsp))
+  :config
+  (setq lsp-clients-typescript-server "typescript-language-server")
+  
+  ;; Performance optimizations
+  (setq lsp-idle-delay 0.5)
+  (setq lsp-log-io nil)
+  (setq lsp-enable-file-watchers nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-text-document-color nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq read-process-output-max (* 1024 1024))  ;; 1MB
+  
+  ;; Rust-specific optimizations
+  (setq lsp-rust-analyzer-cargo-watch-command "clippy")
+  (setq lsp-rust-analyzer-server-display-inlay-hints nil)
+  (setq lsp-rust-analyzer-display-chaining-hints nil)
+  (setq lsp-rust-analyzer-display-parameter-hints nil))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode)
+
+(setq lsp-completion-enable 1)
+
+(setq lsp-ui-doc-enable nil)
+(setq lsp-ui-sideline-enable nil)
+
+(setq lsp-eldoc-render-all nil)
+(setq lsp-eldoc-render-all nil)
+(setq lsp-eldoc-enable-hover nil)
+(setq lsp-enable-symbol-highlighting nil)
+(setq lsp-signature-render-documentation nil)
+
+(setq lsp-ui-doc-show-with-cursor nil)
+(setq lsp-lens-enable nil)
+(setq lsp-ui-sideline-show-code-actions nil)
+(setq lsp-ui-sideline-enable nil)
+(setq lsp-ui-sideline-show-hover nil)
+(setq lsp-modeline-code-actions-enable nil)
+(setq lsp-diagnostics-provider :none)
+(setq lsp-ui-sideline-enable nil)
+(setq lsp-modeline-diagnostics-enable nil)
+(setq lsp-headerline-breadcrumb-enable nil)
+(setq lsp-ui-sideline-enable nil)
+
+(setq lsp-ui-sideline-show-hover nil)
+(setq lsp-ui-sideline-show-code-actions nil)
+(setq lsp-ui-imenu-enable nil)
+(setq lsp-ui-flycheck-enable nil)
+(setq lsp-ui-peek-enable nil)
+(setq lsp-ui-scratch-enable nil)
+(setq lsp-signature-auto-activate nil)
+
+;; (add-hook 'js-mode-hook 'lsp)
+;; (add-hook 'c-mode-hook 'lsp)
+;; (add-hook 'c++-mode-hook 'lsp)
+;; (add-hook 'go-mode-hook 'lsp)
+;; (add-hook 'zig-mode-hook 'lsp)
+;; (add-hook 'rust-mode-hook 'lsp)
+
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
 
@@ -246,30 +330,32 @@
 
 (require 'compile)
 
-(defun update-rust-tags ()
-  (when (eq major-mode 'rust-mode)
-    (let ((default-directory (locate-dominating-file buffer-file-name "Cargo.toml")))
-      (when default-directory
-        (start-process "ctags" nil "ctags" "-e" "-R" "--languages=Rust" "--langmap=Rust:.rs")))))
+(global-set-key (kbd "M-.") 'lsp-find-definition)
 
-(add-hook 'after-save-hook 'update-rust-tags)
-
-(defun my-xref-find-tag-files ()
-  "Find the TAGS file in the Rust project root."
-  (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
-    (when root
-      (list (expand-file-name "TAGS" root)))))
-
-(setq xref-etags-file-name 'my-xref-find-tag-files)
-(setq xref-search-program 'etags)
-
-(defun my-auto-load-tags ()
-  (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
-    (when root
-      (visit-tags-table (expand-file-name "TAGS" root) t))))
-
-(add-hook 'rust-mode-hook #'my-auto-load-tags)
-(setq tags-revert-without-query t)
+;; (defun update-rust-tags ()
+;;   (when (eq major-mode 'rust-mode)
+;;     (let ((default-directory (locate-dominating-file buffer-file-name "Cargo.toml")))
+;;       (when default-directory
+;;         (start-process "ctags" nil "ctags" "-e" "-R" "--languages=Rust" "--langmap=Rust:.rs")))))
+;; 
+;; (add-hook 'after-save-hook 'update-rust-tags)
+;; 
+;; (defun my-xref-find-tag-files ()
+;;   "Find the TAGS file in the Rust project root."
+;;   (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
+;;     (when root
+;;       (list (expand-file-name "TAGS" root)))))
+;; 
+;; (setq xref-etags-file-name 'my-xref-find-tag-files)
+;; (setq xref-search-program 'etags)
+;; 
+;; (defun my-auto-load-tags ()
+;;   (let ((root (locate-dominating-file buffer-file-name "Cargo.toml")))
+;;     (when root
+;;       (visit-tags-table (expand-file-name "TAGS" root) t))))
+;; 
+;; (add-hook 'rust-mode-hook #'my-auto-load-tags)
+;; (setq tags-revert-without-query t)
 
 ;; (use-package dumb-jump
 ;;   :bind (("M-." . dumb-jump-go)
@@ -289,3 +375,6 @@
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+(setq gc-cons-threshold (* 100 1024 1024))  ;; 100MB
+(setq read-process-output-max (* 1024 1024))  ;; 1MB
