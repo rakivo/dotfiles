@@ -150,6 +150,8 @@
         lsp-enable-folding nil
         lsp-enable-text-document-color nil
         lsp-enable-on-type-formatting nil
+        lsp-rust-analyzer-cargo-target-dir "target/rust-analyzer"
+        lsp-rust-analyzer-check-on-save-enable nil
         lsp-rust-analyzer-cargo-watch-command "clippy"
         lsp-rust-analyzer-server-display-inlay-hints nil
         lsp-rust-analyzer-display-chaining-hints nil
@@ -203,11 +205,84 @@
  '(compilation-mode-line-fail ((t (:foreground "#CC9393"))))
  '(compilation-mode-line-exit ((t (:foreground "#7F9F7F")))))
 
-;; Mode line - cleaner colors
+;; Mode line
 (custom-set-faces
- '(mode-line ((t (:background "#2B2B2B" :foreground "#8FB28F" :box nil))))
- '(mode-line-inactive ((t (:background "#1A1A1A" :foreground "#5F7F5F" :box nil))))
- '(mode-line-buffer-id ((t (:foreground "#F0DFAF" :weight bold)))))
+ '(mode-line
+   ((t (:background "#2A2A2A"
+        :foreground "#E6E6E6"
+        :box (:line-width -1 :color "#555555")
+        :height 1.035))))
+ '(mode-line-inactive
+   ((t (:background "#1E1E1E"
+        :foreground "#888888"
+        :box (:line-width -1 :color "#333333")
+        :height 1.0))))
+ '(mode-line-buffer-id
+   ((t (:foreground "#FFAF5F" :weight bold)))))
+
+(setq mode-line-height 24)
+
+(setq treesit-font-lock-level 4)
+
+;; Casey and Jon Blow style annotations:
+;;  - TODO, NOTE, FIXME, HACK
+;;  - @CapitalizedTags (e.g. @Note, @PerfHotPath)
+;;  - nocheckin
+;; Applies to all programming modes
+
+(defface casey-annotation-face
+  '((t :foreground "#FF6A00" :weight bold))
+  "Face for Casey-style code annotations.")
+
+(defun casey-highlight-annotations ()
+  (font-lock-add-keywords
+   nil
+   '(("\\<\\(TODO\\|NOTE\\|FIXME\\|HACK\\)\\>"
+      1 'casey-annotation-face t)
+     ("@[A-Z][^ \t\n]*"
+      0 'casey-annotation-face t)
+     ("\\<nocheckin\\>"
+      0 'casey-annotation-face t))))
+
+(add-hook 'prog-mode-hook #'casey-highlight-annotations)
+
+(set-face-attribute 'header-line nil
+                    :background (face-background 'default)
+                    :foreground (face-foreground 'mode-line)
+                    :box nil)
+
+(column-number-mode 1)
+
+(setq-default fill-column 100)
+
+(set-fringe-mode 0)
+
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+
+(setq use-dialog-box nil)
+
+;; Minimal mode-line
+(setq-default
+ mode-line-format
+ '("%e"
+   ;; Left
+   mode-line-front-space
+   " "
+   (:eval (propertize "%b" 'face 'mode-line-buffer-id)) ;; filename
+   "  "
+
+   ;; Git branch (requires vc)
+   (:eval
+    (when vc-mode
+      (replace-regexp-in-string
+       "^.*[:@]" "" vc-mode)))
+
+   ;; Spacer
+   mode-line-fill-space
+
+   ;; Line / Column
+   " L%l:C%c "
+   mode-line-end-spaces))
 
 ;; Mode associations
 (add-to-list 'auto-mode-alist '("\\.asm\\'" . masm-mode))
@@ -256,6 +331,10 @@
       dired-dwim-target t
       dired-listing-switches "-alh")
 
+(use-package rawgrep
+  :load-path "~/.emacs.local/rawgrep.el"
+  :bind ("M-e" . rawgrep))
+
 ;; Keybindings
 (use-package bind-key)
 (bind-key* "M-q" 'find-file)
@@ -268,7 +347,6 @@
 (global-set-key (kbd "M-2") 'other-window)
 (global-set-key (kbd "M-`") 'ivy-switch-buffer)
 (global-set-key (kbd "M-s") 'shell-command)
-(global-set-key (kbd "M-e") 'grep-find)
 (global-set-key (kbd "M-r") 'recompile)
 (global-set-key (kbd "M-i") 'mark-sexp)
 (global-set-key (kbd "M-a") 'async-shell-command)
@@ -299,6 +377,8 @@
 (global-set-key (kbd "C-:") 'mc/skip-to-previous-like-this)
 (global-set-key (kbd "M-.") 'lsp-find-definition)
 (global-set-key (kbd "<f1>") 'toggle-lsp-breadcrumb)
+
+(remove-hook 'magit-status-headers-hook 'magit-insert-tags-header)
 
 ;; Load local files
 (add-to-list 'load-path "~/.emacs.local/")
