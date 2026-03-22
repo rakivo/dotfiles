@@ -3,21 +3,32 @@ title = "terminal"
 opacity = 1.0
 decorations = "Full"
 
+[colors.primary]
+background = "#062329"
+
 [font]
-size = 16.0
+size = 13.0
 
 [font.normal]
-family = "JetBrains Mono Nerd Font"
+# family = "JetBrains Mono Nerd Font"
+# family = "Liberation Mono"
+family = "Consolas"
 style = "Regular"
 
 [font.bold]
-family = "JetBrains Mono Nerd Font"
+# family = "JetBrains Mono Nerd Font"
+# family = "Liberation Mono"
+family = "Consolas"
 style = "Bold"
 
 [font.italic]
-family = "JetBrains Mono Nerd Font"
+# family = "JetBrains Mono Nerd Font"
+# family = "Liberation Mono"
+family = "Consolas"
 style = "Italic"
 
 [font.bold_italic]
-family = "JetBrains Mono Nerd Font"
+# family = "JetBrains Mono Nerd Font"
+# family = "Liberation Mono"
+family = "Consolas"
 style = "Bold Italic"
