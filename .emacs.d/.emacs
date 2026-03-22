@@ -45,9 +45,16 @@
    ((eq system-type 'gnu/linux) "Liberation Mono-13")))
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
 
+(setq-default line-spacing 0)
+(add-to-list 'default-frame-alist '(font-backend . "xft"))
+(setq inhibit-compacting-font-caches t)
+
 ;; Theme
 (add-to-list 'custom-theme-load-path "~/.emacs.local")
-(load-theme 'handmade t)
+; (load-theme 'handmade t)
+(use-package naysayer-theme :ensure t)
+(load-theme 'naysayer t)
+
 
 ;; Whitespace
 (setq whitespace-display-mappings
@@ -225,19 +232,22 @@
 (setq treesit-font-lock-level 4)
 
 ;; Casey and Jon Blow style annotations:
-;;  - TODO, NOTE, FIXME, HACK
+;;  - TODO, NOTE, FIXME, HACK, IMPORTANT
 ;;  - @CapitalizedTags (e.g. @Note, @PerfHotPath)
 ;;  - nocheckin
 ;; Applies to all programming modes
 
+
+
 (defface casey-annotation-face
-  '((t :foreground "#FF6A00" :weight bold))
+  ;; '((t :foreground "#FF6A00" :weight bold)) ; Orange
+  '((t :foreground "#ff0014" :weight bold)) ; Red
   "Face for Casey-style code annotations.")
 
 (defun casey-highlight-annotations ()
   (font-lock-add-keywords
    nil
-   '(("\\<\\(TODO\\|NOTE\\|FIXME\\|HACK\\)\\>"
+   '(("\\<\\(TODO\\|NOTE\\|FIXME\\|IMPORTANT\\|HACK\\)\\>"
       1 'casey-annotation-face t)
      ("@[A-Z][^ \t\n]*"
       0 'casey-annotation-face t)
@@ -245,6 +255,11 @@
       0 'casey-annotation-face t))))
 
 (add-hook 'prog-mode-hook #'casey-highlight-annotations)
+
+(global-hl-line-mode 1)
+
+;; (set-face-background 'hl-line "#0f1c2e")  ; very dark blue
+(set-face-background 'hl-line "#112c4f")  ; lighter blue
 
 (set-face-attribute 'header-line nil
                     :background (face-background 'default)
